@@ -1,2 +1,2 @@
 # Card-Game
-Proyecto Esttructura de Datos
+Proyecto Estructura de Datos
