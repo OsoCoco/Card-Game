@@ -75,7 +75,7 @@ public class GameController : MonoBehaviour
             hand.Add((Card)h.Dequeue());
         }
 
-        for (int i =0; i < h.Count;i++)
+        while(h.Count > 0)
         {
             deck.Add((Card)h.Dequeue());
         }
