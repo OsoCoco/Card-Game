@@ -62,19 +62,18 @@ public class GameController : MonoBehaviour
         Queue h = new Queue();
         for (int i = 0;i < deck.Count;i++)
         {
-            Card temp = deck[i];
 
-            h.Enqueue(temp);
+            h.Enqueue(deck[i]);
 
         }
+
+        deck.Clear();
+
 
         for (int i = 0; i <= handSize; i++)
         {
             hand.Add((Card)h.Dequeue());
         }
-
-
-        deck.Clear();
 
         for (int i =0; i < h.Count;i++)
         {
