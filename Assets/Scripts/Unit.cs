@@ -7,6 +7,7 @@ public class Unit : MonoBehaviour
     public List<Card> deck;
     public List<Card> hand;
     public int money;
+    public int numberOfShuffles;
 
     private void Awake()
     {

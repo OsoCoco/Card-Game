@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public enum GameState {START,PLAYERTURN,ENEMYTURN,WON,LOST }
 public enum TurnState {SHUFFLE,BET,END}
 public class TurnSystem : MonoBehaviour
 {
+    public Text text;
     public GameState state;
     public TurnState turnState;
 
@@ -17,6 +20,8 @@ public class TurnSystem : MonoBehaviour
 
     Unit playerUnit;
     Unit enemyUnit;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +37,7 @@ public class TurnSystem : MonoBehaviour
 
 
         GameObject enemyGO = Instantiate(enemy,enemyDeckTransform);
-        enemyUnit = playerGo.GetComponent<Unit>();
+        enemyUnit = enemyGO.GetComponent<Unit>();
 
         yield return new WaitForSeconds(2f);
 
@@ -40,12 +45,59 @@ public class TurnSystem : MonoBehaviour
         PlayerTurn();
 
     }
-
-   void  PlayerTurn()
+    #region Player
+    void PlayerTurn()
     {
-        
+        text.text = "Player 1 Turn";
     }
 
+    public void OnPlayerShuffle()
+    {
+        if (state != GameState.PLAYERTURN)
+            return;
+
+        Debug.Log("Turno Jugador");
+        StartCoroutine(PlayerShuffle());
+    }
+    IEnumerator PlayerShuffle()
+    {
+        playerUnit.deck = Shuffle(playerUnit.deck);
+        yield return new WaitForSeconds(2f);
+        text.text = "Player 1 Has Shuffled";
+        yield return new WaitForSeconds(2f);
+
+        state = GameState.ENEMYTURN;
+        EnemyTurn();
+    }
+
+    #endregion
+
+    #region Enemy
+    void EnemyTurn()
+    {
+        text.text = "Player 2 Turn";
+            }
+    public void OnEnemyShuffle()
+    {
+        if (state != GameState.ENEMYTURN)
+            return;
+
+        Debug.Log("Enemy Turn");
+        StartCoroutine(EnemyShuffle());
+
+    }
+    IEnumerator EnemyShuffle()
+    {
+        enemyUnit.deck = Shuffle(enemyUnit.deck);
+        yield return new WaitForSeconds(2f);
+
+        text.text = "Player 2 Has Shuffled";
+        yield return new WaitForSeconds(2f);
+        state = GameState.PLAYERTURN;
+        PlayerTurn();
+    }
+    #endregion
+        
     public List<Card> Shuffle(List<Card> deck)
     {
         System.Random _random = new System.Random();
@@ -81,7 +133,7 @@ public class TurnSystem : MonoBehaviour
         deck.Clear();
 
 
-        for (int i = 0; i <= handSize; i++)
+        for (int i = 0; i < handSize; i++)
         {
             hand.Add((Card)h.Dequeue());
         }
@@ -93,12 +145,5 @@ public class TurnSystem : MonoBehaviour
 
         return hand;
     }
-
-    void OnShufflePlayerButton()
-    {
-        if (state != GameState.PLAYERTURN)
-            return;
-
-        playerUnit.deck = Shuffle(playerUnit.deck);
-    }
+  
 }
