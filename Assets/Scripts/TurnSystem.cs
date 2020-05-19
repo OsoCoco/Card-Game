@@ -22,6 +22,12 @@ public class TurnSystem : MonoBehaviour
     Unit enemyUnit;
 
 
+    public int enemyBet;
+    public int playerBet;
+
+    public Card playerCard;
+    public Card enemyCard;
+
 
     // Start is called before the first frame update
     void Start()
@@ -70,13 +76,35 @@ public class TurnSystem : MonoBehaviour
         EnemyTurn();
     }
 
+    IEnumerator PlayerHand()
+    {
+        if (playerUnit.hand.Count == 0)
+            playerUnit.hand = TakeHand(playerUnit.deck, playerUnit.hand, 5);
+        else
+            text.text = "Already got hand";
+
+        yield return new WaitForSeconds(2f);
+
+        text.text = "Player 1 Has Taken Hand";
+
+    }
+    public void OnPlayerHand()
+    {
+        if (state != GameState.PLAYERTURN)
+            return;
+
+        Debug.Log("Turno Jugador");
+        StartCoroutine(PlayerHand());
+    }
+
+
     #endregion
 
     #region Enemy
     void EnemyTurn()
     {
         text.text = "Player 2 Turn";
-            }
+    }
     public void OnEnemyShuffle()
     {
         if (state != GameState.ENEMYTURN)
@@ -86,18 +114,67 @@ public class TurnSystem : MonoBehaviour
         StartCoroutine(EnemyShuffle());
 
     }
+
+    public void OnEnemyHand()
+    {
+        if (state != GameState.ENEMYTURN)
+            return;
+
+        StartCoroutine(EnemyHand());
+    }
     IEnumerator EnemyShuffle()
     {
         enemyUnit.deck = Shuffle(enemyUnit.deck);
         yield return new WaitForSeconds(2f);
 
         text.text = "Player 2 Has Shuffled";
+        //yield return new WaitForSeconds(2f);
+        //state = GameState.PLAYERTURN;
+        //PlayerTurn();
+    }
+
+    IEnumerator EnemyHand()
+    {
+        if (enemyUnit.hand.Count == 0)
+            enemyUnit.hand = TakeHand(enemyUnit.deck, enemyUnit.hand, 5);
+        else
+            text.text = "Already got hand";
+
         yield return new WaitForSeconds(2f);
-        state = GameState.PLAYERTURN;
-        PlayerTurn();
+        text.text = "Player 2 Has Taken Hand";
+    }
+    IEnumerator EnemyCard()
+    {
+        enemyCard = TurnCard(enemyUnit.hand);
+
+        yield return new WaitForSeconds(2f);
+
+        text.text = "Player 2 Has Taken Hand";
+
+    }
+
+    public void OnEnemyCard()
+    {
+        if (state != GameState.ENEMYTURN)
+            return;
+
+        StartCoroutine(EnemyCard());
     }
     #endregion
+    
+    public Card TurnCard(List<Card> hand)
+    {
+        if (hand.Count == 0)
+            return null;
+
+        Card turnCard;
+
+        turnCard = hand[0];
+        hand.Remove(turnCard);
+
+        return turnCard;
         
+    }
     public List<Card> Shuffle(List<Card> deck)
     {
         System.Random _random = new System.Random();
