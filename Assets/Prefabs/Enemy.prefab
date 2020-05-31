@@ -71,8 +71,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: e3d94a21472933f4080a1350d34fc443, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 3d1e4561e0a785544b2bd1a4b0a53701, type: 3}
+  m_Color: {r: 0, g: 0.3885045, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -94,7 +94,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06cb6d97a86ed2c449e88764df7c7ec9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deck: []
   hand: []
   money: 0
-  numberOfShuffles: 0
+  bet: {fileID: 0}
+  shuffle: {fileID: 0}
+  takeHand: {fileID: 0}

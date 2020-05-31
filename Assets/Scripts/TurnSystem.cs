@@ -8,6 +8,8 @@ public enum GameState {START,PLAYERTURN,ENEMYTURN,WON,LOST }
 public enum TurnState {SHUFFLE,BET,END}
 public class TurnSystem : MonoBehaviour
 {
+
+    public List<Card> deck;
     public Text text;
     public GameState state;
     public TurnState turnState;
@@ -29,6 +31,21 @@ public class TurnSystem : MonoBehaviour
     public Card enemyCard;
 
 
+    private void Awake()
+    {
+    
+
+
+
+
+        for (int i = 0; i < 50; i++)
+        {
+            deck.Add(new Card(i+1));
+        }
+
+        deck = Shuffle(deck);
+
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -36,8 +53,11 @@ public class TurnSystem : MonoBehaviour
         StartCoroutine (SetUpGame());
     }
 
+   
+
     IEnumerator SetUpGame()
     {
+
         GameObject playerGo = Instantiate(player,playerDeckTransform);
         playerUnit = playerGo.GetComponent<Unit>();
 
@@ -45,6 +65,26 @@ public class TurnSystem : MonoBehaviour
         GameObject enemyGO = Instantiate(enemy,enemyDeckTransform);
         enemyUnit = enemyGO.GetComponent<Unit>();
 
+
+        playerUnit.shuffle = GameObject.FindGameObjectWithTag("PlayerShuffle");
+        playerUnit.bet = GameObject.FindGameObjectWithTag("PlayerBet");
+        playerUnit.takeHand = GameObject.FindGameObjectWithTag("PlayerTakeHand");
+
+        enemyUnit.shuffle = GameObject.FindGameObjectWithTag("EnemyShuffle");
+        enemyUnit.bet = GameObject.FindGameObjectWithTag("EnemyBet");
+        enemyUnit.takeHand = GameObject.FindGameObjectWithTag("EnemyTakeHand");
+
+        playerUnit.shuffle.SetActive(false);
+        playerUnit.bet.SetActive(false);
+        playerUnit.takeHand.SetActive(false);
+
+        enemyUnit.shuffle.SetActive(false);
+        enemyUnit.bet.SetActive(false);
+        enemyUnit.takeHand.SetActive(false);
+
+
+
+     
         yield return new WaitForSeconds(2f);
 
         state = GameState.PLAYERTURN;
@@ -55,6 +95,9 @@ public class TurnSystem : MonoBehaviour
     void PlayerTurn()
     {
         text.text = "Player 1 Turn";
+
+        playerUnit.shuffle.SetActive(true);
+        playerUnit.takeHand.SetActive(true);
     }
 
     public void OnPlayerShuffle()
@@ -67,10 +110,13 @@ public class TurnSystem : MonoBehaviour
     }
     IEnumerator PlayerShuffle()
     {
-        playerUnit.deck = Shuffle(playerUnit.deck);
+        deck = playerUnit. Shuffle(deck);
+        playerUnit.shuffle.gameObject.SetActive(false);
+
         yield return new WaitForSeconds(2f);
         text.text = "Player 1 Has Shuffled";
         yield return new WaitForSeconds(2f);
+
 
         state = GameState.ENEMYTURN;
         EnemyTurn();
@@ -79,13 +125,21 @@ public class TurnSystem : MonoBehaviour
     IEnumerator PlayerHand()
     {
         if (playerUnit.hand.Count == 0)
-            playerUnit.hand = TakeHand(playerUnit.deck, playerUnit.hand, 5);
+            playerUnit.hand = playerUnit.TakeHand(deck, playerUnit.hand, 5);
         else
             text.text = "Already got hand";
+
+        playerUnit.takeHand.SetActive(false);
 
         yield return new WaitForSeconds(2f);
 
         text.text = "Player 1 Has Taken Hand";
+
+        yield return new WaitForSeconds(2f);
+
+
+        state = GameState.ENEMYTURN;
+        EnemyTurn();
 
     }
     public void OnPlayerHand()
@@ -124,42 +178,26 @@ public class TurnSystem : MonoBehaviour
     }
     IEnumerator EnemyShuffle()
     {
-        enemyUnit.deck = Shuffle(enemyUnit.deck);
+        deck = enemyUnit.Shuffle(deck);
         yield return new WaitForSeconds(2f);
 
         text.text = "Player 2 Has Shuffled";
-        //yield return new WaitForSeconds(2f);
-        //state = GameState.PLAYERTURN;
-        //PlayerTurn();
+        yield return new WaitForSeconds(2f);
+        state = GameState.PLAYERTURN;
+        PlayerTurn();
     }
 
     IEnumerator EnemyHand()
     {
-        if (enemyUnit.hand.Count == 0)
-            enemyUnit.hand = TakeHand(enemyUnit.deck, enemyUnit.hand, 5);
+        if (enemyUnit.hand != null)
+            enemyUnit.hand = enemyUnit.TakeHand(deck, enemyUnit.hand, 5);
         else
             text.text = "Already got hand";
 
         yield return new WaitForSeconds(2f);
         text.text = "Player 2 Has Taken Hand";
     }
-    IEnumerator EnemyCard()
-    {
-        enemyCard = TurnCard(enemyUnit.hand);
 
-        yield return new WaitForSeconds(2f);
-
-        text.text = "Player 2 Has Taken Hand";
-
-    }
-
-    public void OnEnemyCard()
-    {
-        if (state != GameState.ENEMYTURN)
-            return;
-
-        StartCoroutine(EnemyCard());
-    }
     #endregion
     
     public Card TurnCard(List<Card> hand)
@@ -175,6 +213,8 @@ public class TurnSystem : MonoBehaviour
         return turnCard;
         
     }
+
+
     public List<Card> Shuffle(List<Card> deck)
     {
         System.Random _random = new System.Random();
@@ -197,30 +237,5 @@ public class TurnSystem : MonoBehaviour
         return deck;
 
     }
-    public List<Card> TakeHand(List<Card> deck, List<Card> hand, int handSize)
-    {
-        Queue h = new Queue();
-        for (int i = 0; i < deck.Count; i++)
-        {
 
-            h.Enqueue(deck[i]);
-
-        }
-
-        deck.Clear();
-
-
-        for (int i = 0; i < handSize; i++)
-        {
-            hand.Add((Card)h.Dequeue());
-        }
-
-        while (h.Count > 0)
-        {
-            deck.Add((Card)h.Dequeue());
-        }
-
-        return hand;
-    }
-  
 }
