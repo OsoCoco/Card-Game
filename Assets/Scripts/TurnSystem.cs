@@ -16,6 +16,8 @@ public class TurnSystem : MonoBehaviour
 
     public GameObject player;
     public GameObject enemy;
+    public GameObject playerCardprefab;
+    public GameObject enemyCardprefab;
 
     public Transform playerDeckTransform;
     public Transform enemyDeckTransform;
@@ -27,20 +29,14 @@ public class TurnSystem : MonoBehaviour
     public int enemyBet;
     public int playerBet;
 
-    public Card playerCard;
-    public Card enemyCard;
 
 
     private void Awake()
     {
-    
-
-
-
 
         for (int i = 0; i < 50; i++)
         {
-            deck.Add(new Card(i+1));
+            deck.Add( new Card(i+1));
         }
 
         deck = Shuffle(deck);
@@ -92,12 +88,15 @@ public class TurnSystem : MonoBehaviour
 
     }
     #region Player
-    void PlayerTurn()
+    public void PlayerTurn()
     {
         text.text = "Player 1 Turn";
 
-        playerUnit.shuffle.SetActive(true);
-        playerUnit.takeHand.SetActive(true);
+        if(!playerUnit.hasShuffle)
+            playerUnit.shuffle.SetActive(true);
+
+        if(!playerUnit.hasTakenHand)
+            playerUnit.takeHand.SetActive(true);
     }
 
     public void OnPlayerShuffle()
@@ -111,7 +110,8 @@ public class TurnSystem : MonoBehaviour
     IEnumerator PlayerShuffle()
     {
         deck = playerUnit. Shuffle(deck);
-        playerUnit.shuffle.gameObject.SetActive(false);
+        playerUnit.shuffle.SetActive(false);
+        playerUnit.hasShuffle = true;
 
         yield return new WaitForSeconds(2f);
         text.text = "Player 1 Has Shuffled";
@@ -124,12 +124,29 @@ public class TurnSystem : MonoBehaviour
 
     IEnumerator PlayerHand()
     {
+        float x = -3;
+        float y = -3;
+
         if (playerUnit.hand.Count == 0)
             playerUnit.hand = playerUnit.TakeHand(deck, playerUnit.hand, 5);
         else
             text.text = "Already got hand";
 
         playerUnit.takeHand.SetActive(false);
+        playerUnit.shuffle.SetActive(false);
+        playerUnit.hasTakenHand = true;
+        playerUnit.hasShuffle = true;
+
+        yield return new WaitForSeconds(2f);
+
+        for(int i = 0; i < playerUnit.hand.Count;i++)
+        {
+            
+            yield return new WaitForSeconds(1f);
+            GameObject temp = Instantiate(playerCardprefab,new Vector2(x,y),Quaternion.identity);
+            temp.GetComponent<CardController>().value = playerUnit.hand[i].value;
+            x += 1.8f;
+        }
 
         yield return new WaitForSeconds(2f);
 
@@ -155,9 +172,15 @@ public class TurnSystem : MonoBehaviour
     #endregion
 
     #region Enemy
-    void EnemyTurn()
+    public void EnemyTurn()
     {
         text.text = "Player 2 Turn";
+
+        if (!enemyUnit.hasShuffle)
+            enemyUnit.shuffle.SetActive(true);
+
+        if (!enemyUnit.hasTakenHand)
+            enemyUnit.takeHand.SetActive(true);
     }
     public void OnEnemyShuffle()
     {
@@ -179,6 +202,10 @@ public class TurnSystem : MonoBehaviour
     IEnumerator EnemyShuffle()
     {
         deck = enemyUnit.Shuffle(deck);
+
+        enemyUnit.shuffle.SetActive(false);
+        enemyUnit.hasShuffle = true;
+
         yield return new WaitForSeconds(2f);
 
         text.text = "Player 2 Has Shuffled";
@@ -189,13 +216,34 @@ public class TurnSystem : MonoBehaviour
 
     IEnumerator EnemyHand()
     {
+        float x = -3;
+        float y = 3;
         if (enemyUnit.hand != null)
             enemyUnit.hand = enemyUnit.TakeHand(deck, enemyUnit.hand, 5);
         else
             text.text = "Already got hand";
 
+        enemyUnit.takeHand.SetActive(false);
+        enemyUnit.shuffle.SetActive(false);
+        enemyUnit.hasShuffle = true;
+        enemyUnit.hasTakenHand = true;
+
+        yield return new WaitForSeconds(2f);
+
+        for (int i = 0; i < enemyUnit.hand.Count; i++)
+        {
+
+            yield return new WaitForSeconds(1f);
+            GameObject temp = Instantiate(enemyCardprefab, new Vector2(x, y), Quaternion.identity);
+            temp.GetComponent<CardController>().value = enemyUnit.hand[i].value;
+            x += 1.8f;
+        }
+
         yield return new WaitForSeconds(2f);
         text.text = "Player 2 Has Taken Hand";
+        yield return new WaitForSeconds(2f);
+        state = GameState.PLAYERTURN;
+        PlayerTurn();
     }
 
     #endregion

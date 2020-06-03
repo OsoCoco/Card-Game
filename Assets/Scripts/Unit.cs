@@ -14,6 +14,8 @@ public class Unit : MonoBehaviour
     public GameObject takeHand;
     //public int numberOfShuffles;
 
+    public bool hasShuffle;
+    public bool hasTakenHand;
 
 
     public List<Card> Shuffle(List<Card> deck)
