@@ -20,7 +20,7 @@ public class CardController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if(system.state != GameState.COMPARECARDS)
+        if(system.state != GameState.COMPARECARDS || system.state != GameState.PLAYERBET || system.state != GameState.ENEMYBET)
         {
             if (system.state == GameState.PLAYERTURN)
             {
@@ -43,7 +43,7 @@ public class CardController : MonoBehaviour
     {
         Debug.Log(value);
         clicked = true;
-        system.playerCard = new Card(this.value);
+        system.playerCard = this;
         yield return new WaitForSeconds(1f);
 
         this.gameObject.SetActive(false);
@@ -55,7 +55,7 @@ public class CardController : MonoBehaviour
     {
         Debug.Log(value);
         clicked = true;
-        system.enemyCard = new Card(this.value);
+        system.enemyCard = this;
         yield return new WaitForSeconds(1f);
 
         this.gameObject.SetActive(false);

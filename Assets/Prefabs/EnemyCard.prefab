@@ -122,4 +122,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 0
+  betValue: 0
+  index: 0
   system: {fileID: 0}

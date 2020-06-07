@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public enum GameState {START,PLAYERTURN,ENEMYTURN,COMPARECARDS,WON,LOST }
+public enum GameState {START,PLAYERTURN,ENEMYTURN,COMPARECARDS,PLAYERBET,ENEMYBET,WON,LOST }
 public enum TurnState {SHUFFLE,BET,END}
 public class TurnSystem : MonoBehaviour
 {
@@ -30,13 +30,13 @@ public class TurnSystem : MonoBehaviour
     public int playerBet;
 
 
-    public Card playerCard;
-    public Card enemyCard;
+    public CardController playerCard;
+    public CardController enemyCard;
 
     public int roundCounter;
 
     public InputField[] playerBetFields;
-
+    public InputField[] enemyBetFields;
 
 
     // Start is called before the first frame update
@@ -88,9 +88,14 @@ public class TurnSystem : MonoBehaviour
             playerBetFields[i].gameObject.SetActive(false);
         }
 
+        for (int i = 0; i < enemyBetFields.Length; i++)
+        {
+            enemyBetFields[i].gameObject.SetActive(false);
+        }
 
 
-     
+
+
         yield return new WaitForSeconds(2f);
 
         state = GameState.PLAYERTURN;
@@ -158,6 +163,7 @@ public class TurnSystem : MonoBehaviour
             
             yield return new WaitForSeconds(1f);
             playerBetFields[i].gameObject.SetActive(true);
+            playerBetFields[i].interactable = false;
             GameObject temp = Instantiate(playerCardprefab,new Vector2(x,y),Quaternion.identity);
             temp.GetComponent<CardController>().value = playerUnit.hand[i].value;
             temp.GetComponent<CardController>().index += i;
@@ -184,6 +190,34 @@ public class TurnSystem : MonoBehaviour
         StartCoroutine(PlayerHand());
     }
 
+
+    public void PlayerBetTurn()
+    {
+        text.text = "PLAYER 1 BET TURN";
+
+        for (int i = 0; i < playerBetFields.Length; i++)
+            playerBetFields[i].interactable = true;
+
+        playerUnit.bet.SetActive(true);
+ 
+    }
+
+    public void OnPlayerBet()
+    {
+        if (state != GameState.PLAYERBET)
+            return;
+
+        StartCoroutine(PlayerBet());
+    }
+
+    IEnumerator PlayerBet()
+    {
+        text.text = "Player 1 Has Placed Bets";
+        yield return new WaitForSeconds(2f);
+        playerUnit.bet.SetActive(false);
+        state = GameState.ENEMYBET;
+        EnemeyBetTurn();
+    }
 
     #endregion
 
@@ -255,15 +289,44 @@ public class TurnSystem : MonoBehaviour
 
             yield return new WaitForSeconds(1f);
             GameObject temp = Instantiate(enemyCardprefab, new Vector2(x, y), Quaternion.identity);
+            enemyBetFields[i].gameObject.SetActive(true);
+            enemyBetFields[i].interactable = false;
             temp.GetComponent<CardController>().value = enemyUnit.hand[i].value;
+            temp.GetComponent<CardController>().index += i;
             x += 1.8f;
         }
 
         yield return new WaitForSeconds(2f);
         text.text = "Player 2 Has Taken Hand";
         yield return new WaitForSeconds(2f);
+        state = GameState.PLAYERBET;
+        PlayerBetTurn();
+    }
+
+    public void EnemeyBetTurn()
+    {
+        text.text = "PLAYER 2 BET TURN";
+
+        for (int i = 0; i < playerBetFields.Length; i++)
+            enemyBetFields[i].interactable = true;
+
+        enemyUnit.bet.SetActive(true);
+
+    }
+    IEnumerator EnemyBet()
+    {
+        text.text = "Player 2 Has Placed Bets";
+        yield return new WaitForSeconds(2f);
+        enemyUnit.bet.SetActive(false);
         state = GameState.PLAYERTURN;
         PlayerTurn();
+    }
+
+    public void OnEnemyBet()
+    {
+        if (state != GameState.ENEMYBET)
+            return;
+        StartCoroutine(EnemyBet());
     }
 
     #endregion
@@ -283,6 +346,7 @@ public class TurnSystem : MonoBehaviour
         if(playerCard.value > enemyCard.value)
         {
             text.text = "JUGADOR 1 GANA ESTA RONDA";
+            playerUnit.money += playerCard.betValue + enemyCard.betValue;
             Debug.Log("JUGADOR 1 GANA ESTA RONDA");
             yield return new WaitForSeconds(1);
             roundCounter += 1;
@@ -292,6 +356,7 @@ public class TurnSystem : MonoBehaviour
         else
         {
             text.text = "JUGADOR 2 GANA ESTA RONDA";
+            enemyUnit.money += playerCard.betValue + enemyCard.betValue;
             Debug.Log("JUGADOR 2 GANA ESTA RONDA");
             yield return new WaitForSeconds(1);
             roundCounter += 1;
