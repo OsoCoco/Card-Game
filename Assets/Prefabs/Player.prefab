@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6690550449304545698}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -72,7 +72,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 3d1e4561e0a785544b2bd1a4b0a53701, type: 3}
-  m_Color: {r: 0.992851, g: 1, b: 0.033018887, a: 1}
+  m_Color: {r: 1, g: 0.058704656, b: 0.031372547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -95,7 +95,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hand: []
-  money: 0
+  money: 20
   bet: {fileID: 0}
   shuffle: {fileID: 0}
   takeHand: {fileID: 0}
+  hasShuffle: 0
+  hasTakenHand: 0

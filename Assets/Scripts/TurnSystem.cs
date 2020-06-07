@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public enum GameState {START,PLAYERTURN,ENEMYTURN,WON,LOST }
+public enum GameState {START,PLAYERTURN,ENEMYTURN,COMPARECARDS,WON,LOST }
 public enum TurnState {SHUFFLE,BET,END}
 public class TurnSystem : MonoBehaviour
 {
@@ -30,21 +30,26 @@ public class TurnSystem : MonoBehaviour
     public int playerBet;
 
 
+    public Card playerCard;
+    public Card enemyCard;
 
-    private void Awake()
+    public int roundCounter;
+
+    public InputField[] playerBetFields;
+
+
+
+    // Start is called before the first frame update
+    void Awake()
     {
-
         for (int i = 0; i < 50; i++)
         {
-            deck.Add( new Card(i+1));
+            deck.Add(new Card(i + 1));
         }
 
         deck = Shuffle(deck);
 
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
+
         state = GameState.START;
         StartCoroutine (SetUpGame());
     }
@@ -78,6 +83,11 @@ public class TurnSystem : MonoBehaviour
         enemyUnit.bet.SetActive(false);
         enemyUnit.takeHand.SetActive(false);
 
+        for(int i  = 0; i < playerBetFields.Length;i++)
+        {
+            playerBetFields[i].gameObject.SetActive(false);
+        }
+
 
 
      
@@ -92,7 +102,11 @@ public class TurnSystem : MonoBehaviour
     {
         text.text = "Player 1 Turn";
 
-        if(!playerUnit.hasShuffle)
+        enemyUnit.shuffle.SetActive(false);
+        enemyUnit.bet.SetActive(false);
+        enemyUnit.takeHand.SetActive(false);
+
+        if (!playerUnit.hasShuffle)
             playerUnit.shuffle.SetActive(true);
 
         if(!playerUnit.hasTakenHand)
@@ -143,8 +157,10 @@ public class TurnSystem : MonoBehaviour
         {
             
             yield return new WaitForSeconds(1f);
+            playerBetFields[i].gameObject.SetActive(true);
             GameObject temp = Instantiate(playerCardprefab,new Vector2(x,y),Quaternion.identity);
             temp.GetComponent<CardController>().value = playerUnit.hand[i].value;
+            temp.GetComponent<CardController>().index += i;
             x += 1.8f;
         }
 
@@ -175,6 +191,10 @@ public class TurnSystem : MonoBehaviour
     public void EnemyTurn()
     {
         text.text = "Player 2 Turn";
+
+        playerUnit.shuffle.SetActive(false);
+        playerUnit.bet.SetActive(false);
+        playerUnit.takeHand.SetActive(false);
 
         if (!enemyUnit.hasShuffle)
             enemyUnit.shuffle.SetActive(true);
@@ -247,6 +267,40 @@ public class TurnSystem : MonoBehaviour
     }
 
     #endregion
+
+    public void CompareCards()
+    {
+        if (state != GameState.COMPARECARDS)
+            return;
+
+        if (playerCard != null && enemyCard != null)
+          StartCoroutine(Compare());
+
+    }
+
+    IEnumerator Compare()
+    {
+        if(playerCard.value > enemyCard.value)
+        {
+            text.text = "JUGADOR 1 GANA ESTA RONDA";
+            Debug.Log("JUGADOR 1 GANA ESTA RONDA");
+            yield return new WaitForSeconds(1);
+            roundCounter += 1;
+            state = GameState.PLAYERTURN;
+            PlayerTurn();
+        }
+        else
+        {
+            text.text = "JUGADOR 2 GANA ESTA RONDA";
+            Debug.Log("JUGADOR 2 GANA ESTA RONDA");
+            yield return new WaitForSeconds(1);
+            roundCounter += 1;
+            state = GameState.PLAYERTURN;
+            PlayerTurn();
+        }
+
+
+    }
     
     public Card TurnCard(List<Card> hand)
     {

@@ -10,6 +10,9 @@ TagManager:
   - EnemyShuffle
   - EnemyBet
   - EnemyTakeHand
+  - PlayerCard
+  - EnemyCard
+  - Enemy
   layers:
   - Default
   - TransparentFX

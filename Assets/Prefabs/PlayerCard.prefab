@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7715406376835223676}
   m_Layer: 0
   m_Name: PlayerCard
-  m_TagString: Untagged
+  m_TagString: PlayerCard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,6 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 0
+  system: {fileID: 0}
 --- !u!61 &7715406376835223676
 BoxCollider2D:
   m_ObjectHideFlags: 0

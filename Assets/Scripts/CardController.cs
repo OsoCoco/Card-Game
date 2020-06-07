@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class CardController : MonoBehaviour
 {
     public int value;
+    public int betValue;
+
+    public int index = 0;
+    bool clicked;
    
     [SerializeField]TurnSystem system;
 
@@ -15,29 +20,46 @@ public class CardController : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if(system.state == GameState.PLAYERTURN)
+        if(system.state != GameState.COMPARECARDS)
         {
-            StartCoroutine(PlayerCard());
+            if (system.state == GameState.PLAYERTURN)
+            {
+                if (gameObject.CompareTag("EnemyCard") || clicked)
+                    return;
+                StartCoroutine(PlayerCard());
+            }
+            else if (system.state == GameState.ENEMYTURN || clicked)
+            {
+                if (gameObject.CompareTag("PlayerCard"))
+                    return;
+                StartCoroutine(EnemyCard());
+            }
         }
-        else if(system.state == GameState.ENEMYTURN)
-        {
-            StartCoroutine(EnemyCard());
-        }
+
+       
 
     }
     IEnumerator PlayerCard()
     {
         Debug.Log(value);
+        clicked = true;
+        system.playerCard = new Card(this.value);
         yield return new WaitForSeconds(1f);
+
+        this.gameObject.SetActive(false);
         system.state = GameState.ENEMYTURN;
-        system.PlayerTurn();
+        system.EnemyTurn();
     }
 
     IEnumerator EnemyCard()
     {
         Debug.Log(value);
+        clicked = true;
+        system.enemyCard = new Card(this.value);
         yield return new WaitForSeconds(1f);
-        system.state = GameState.PLAYERTURN;
-        system.EnemyTurn();
+
+        this.gameObject.SetActive(false);
+        system.state = GameState.COMPARECARDS;
+        system.CompareCards();
     }
 }

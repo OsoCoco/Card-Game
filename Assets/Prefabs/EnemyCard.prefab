@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3816319919895903409}
   m_Layer: 0
   m_Name: EnemyCard
-  m_TagString: Untagged
+  m_TagString: EnemyCard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122,3 +122,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 0
+  system: {fileID: 0}
