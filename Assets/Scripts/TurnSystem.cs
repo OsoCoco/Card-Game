@@ -18,6 +18,8 @@ public class TurnSystem : MonoBehaviour
     public GameObject enemy;
     public GameObject playerCardprefab;
     public GameObject enemyCardprefab;
+    public GameObject playerFireworks;
+    public GameObject enemyFireworks;
 
     public Transform playerDeckTransform;
     public Transform enemyDeckTransform;
@@ -105,6 +107,7 @@ public class TurnSystem : MonoBehaviour
     #region Player
     public void PlayerTurn()
     {
+       
         text.text = "Player 1 Turn";
 
         enemyUnit.shuffle.SetActive(false);
@@ -212,6 +215,12 @@ public class TurnSystem : MonoBehaviour
 
     IEnumerator PlayerBet()
     {
+        for (int i = 0; i < playerBetFields.Length; i++)
+        {
+            playerBetFields[i].interactable = false;
+            yield return new WaitForSeconds(0.5f);
+            playerBetFields[i].gameObject.SetActive(false);
+        }
         text.text = "Player 1 Has Placed Bets";
         yield return new WaitForSeconds(2f);
         playerUnit.bet.SetActive(false);
@@ -315,7 +324,14 @@ public class TurnSystem : MonoBehaviour
     }
     IEnumerator EnemyBet()
     {
+        for (int i = 0; i < enemyBetFields.Length; i++)
+        {
+            enemyBetFields[i].interactable = false;
+            yield return new WaitForSeconds(0.5f);
+            enemyBetFields[i].gameObject.SetActive(false);
+        }
         text.text = "Player 2 Has Placed Bets";
+
         yield return new WaitForSeconds(2f);
         enemyUnit.bet.SetActive(false);
         state = GameState.PLAYERTURN;
@@ -348,7 +364,9 @@ public class TurnSystem : MonoBehaviour
             text.text = "JUGADOR 1 GANA ESTA RONDA";
             playerUnit.money += playerCard.betValue + enemyCard.betValue;
             Debug.Log("JUGADOR 1 GANA ESTA RONDA");
-            yield return new WaitForSeconds(1);
+            playerFireworks.SetActive(true);
+            yield return new WaitForSeconds(1.5f);
+            playerFireworks.SetActive(false);
             roundCounter += 1;
             state = GameState.PLAYERTURN;
             PlayerTurn();
@@ -357,16 +375,48 @@ public class TurnSystem : MonoBehaviour
         {
             text.text = "JUGADOR 2 GANA ESTA RONDA";
             enemyUnit.money += playerCard.betValue + enemyCard.betValue;
+            enemyFireworks.SetActive(true);
             Debug.Log("JUGADOR 2 GANA ESTA RONDA");
-            yield return new WaitForSeconds(1);
+
+            yield return new WaitForSeconds(1.5f);
+            enemyFireworks.SetActive(false);
             roundCounter += 1;
             state = GameState.PLAYERTURN;
             PlayerTurn();
         }
 
+        WinCondition();
 
     }
-    
+
+
+    void WinCondition()
+    {
+        GameObject[] temp;
+        GameObject[] temp2;
+
+        temp = GameObject.FindGameObjectsWithTag("PlayerCard");
+        temp2 = GameObject.FindGameObjectsWithTag("EnemyCard");
+        
+        if (temp.Length != 0 && temp2.Length != 0)
+        {
+            return;
+        }
+        else
+        {
+            if(playerUnit.money > enemyUnit.money)
+            {
+                text.text = "PLAYER 1 WON";
+                playerFireworks.SetActive(true);
+            }
+            else
+            {
+                text.text = "PLAYER 2 WON";
+                enemyFireworks.SetActive(true);
+            }
+        }
+    }
+
     public Card TurnCard(List<Card> hand)
     {
         if (hand.Count == 0)

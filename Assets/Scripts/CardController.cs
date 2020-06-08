@@ -62,4 +62,6 @@ public class CardController : MonoBehaviour
         system.state = GameState.COMPARECARDS;
         system.CompareCards();
     }
+
+
 }
