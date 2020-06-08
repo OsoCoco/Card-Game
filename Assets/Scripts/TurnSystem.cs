@@ -24,8 +24,8 @@ public class TurnSystem : MonoBehaviour
     public Transform playerDeckTransform;
     public Transform enemyDeckTransform;
 
-    Unit playerUnit;
-    Unit enemyUnit;
+    public Unit playerUnit;
+    public Unit enemyUnit;
 
 
     public int enemyBet;
@@ -39,6 +39,8 @@ public class TurnSystem : MonoBehaviour
 
     public InputField[] playerBetFields;
     public InputField[] enemyBetFields;
+    
+  
 
 
     // Start is called before the first frame update
@@ -139,9 +141,18 @@ public class TurnSystem : MonoBehaviour
         text.text = "Player 1 Has Shuffled";
         yield return new WaitForSeconds(2f);
 
+        if(!enemyUnit.hasTakenHand)
+        {
+            state = GameState.ENEMYTURN;
+            EnemyTurn();
+        }
 
-        state = GameState.ENEMYTURN;
-        EnemyTurn();
+        else
+        {
+            state = GameState.ENEMYBET;
+            EnemeyBetTurn();
+        }
+       
     }
 
     IEnumerator PlayerHand()
@@ -179,9 +190,24 @@ public class TurnSystem : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-
-        state = GameState.ENEMYTURN;
-        EnemyTurn();
+        if(enemyUnit.hasTakenHand)
+        {
+            if(enemyUnit.hasBet)
+            {
+                state = GameState.ENEMYTURN;
+                EnemyTurn();
+            }
+            else
+            {
+                state = GameState.ENEMYBET;
+                EnemeyBetTurn();
+            }
+        }
+        else
+        {
+             state = GameState.ENEMYTURN;
+             EnemyTurn();
+        }
 
     }
     public void OnPlayerHand()
@@ -222,10 +248,49 @@ public class TurnSystem : MonoBehaviour
             playerBetFields[i].gameObject.SetActive(false);
         }
         text.text = "Player 1 Has Placed Bets";
+        playerUnit.hasBet = true;
         yield return new WaitForSeconds(2f);
+
+        
         playerUnit.bet.SetActive(false);
-        state = GameState.ENEMYBET;
-        EnemeyBetTurn();
+
+        if(enemyUnit.hasTakenHand)
+        {
+            if(!enemyUnit.hasBet)
+            {
+                state = GameState.ENEMYBET;
+                EnemeyBetTurn();
+            }
+            else
+            {
+              if(enemyCard!=null)
+                {
+                    if(playerCard !=null)
+                    {
+                        state = GameState.COMPARECARDS;
+                        CompareCards();
+                    }
+                    else
+                    {
+                        state = GameState.PLAYERTURN;
+                        PlayerTurn();
+                    }
+                }
+                else
+                {
+                    state = GameState.ENEMYTURN;
+                    EnemyTurn();
+                }
+
+
+            }
+        }
+        else
+        {
+            state = GameState.ENEMYTURN;
+            EnemyTurn();
+        }
+       
     }
 
     #endregion
@@ -273,8 +338,19 @@ public class TurnSystem : MonoBehaviour
 
         text.text = "Player 2 Has Shuffled";
         yield return new WaitForSeconds(2f);
-        state = GameState.PLAYERTURN;
-        PlayerTurn();
+
+        if (!playerUnit.hasTakenHand )
+        {
+            state = GameState.PLAYERTURN;
+            PlayerTurn();
+        }
+        else
+        {
+            state = GameState.PLAYERBET;
+            PlayerBetTurn();
+        }
+       
+        
     }
 
     IEnumerator EnemyHand()
@@ -308,8 +384,27 @@ public class TurnSystem : MonoBehaviour
         yield return new WaitForSeconds(2f);
         text.text = "Player 2 Has Taken Hand";
         yield return new WaitForSeconds(2f);
-        state = GameState.PLAYERBET;
-        PlayerBetTurn();
+
+        if(playerUnit.hasTakenHand)
+        {
+            if(playerUnit.hasBet)
+            {
+                state = GameState.PLAYERTURN;
+                PlayerTurn();
+            }
+            else
+            {
+                state = GameState.PLAYERBET;
+                PlayerBetTurn();
+
+            }
+
+        }
+        else
+        {
+            state = GameState.PLAYERTURN;
+            PlayerTurn();
+        }
     }
 
     public void EnemeyBetTurn()
@@ -331,11 +426,48 @@ public class TurnSystem : MonoBehaviour
             enemyBetFields[i].gameObject.SetActive(false);
         }
         text.text = "Player 2 Has Placed Bets";
-
+        enemyUnit.hasBet = true;
         yield return new WaitForSeconds(2f);
         enemyUnit.bet.SetActive(false);
-        state = GameState.PLAYERTURN;
-        PlayerTurn();
+
+
+        if (playerUnit.hasTakenHand)
+        {
+            if (!playerUnit.hasBet)
+            {
+                state = GameState.PLAYERBET;
+                PlayerBetTurn();
+            }
+            else
+            {
+                if (playerCard != null)
+                {
+                    if (enemyCard != null)
+                    {
+                        state = GameState.COMPARECARDS;
+                        CompareCards();
+                    }
+                    else
+                    {
+                        state = GameState.ENEMYTURN;
+                        EnemyTurn();
+                    }
+                }
+                else
+                {
+                    state = GameState.PLAYERTURN;
+                    PlayerTurn();
+                }
+
+
+            }
+        }
+        else
+        {
+            state = GameState.PLAYERTURN;
+            PlayerTurn();
+        }
+
     }
 
     public void OnEnemyBet()
@@ -384,6 +516,8 @@ public class TurnSystem : MonoBehaviour
             state = GameState.PLAYERTURN;
             PlayerTurn();
         }
+        playerCard = null;
+        enemyCard = null;
 
         WinCondition();
 

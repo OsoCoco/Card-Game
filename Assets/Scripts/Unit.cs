@@ -16,6 +16,7 @@ public class Unit : MonoBehaviour
 
     public bool hasShuffle;
     public bool hasTakenHand;
+    public bool hasBet;
 
 
     public List<Card> Shuffle(List<Card> deck)
