@@ -157,7 +157,7 @@ public class TurnSystem : MonoBehaviour
 
     IEnumerator PlayerHand()
     {
-        float x = -3;
+        float x = -3.6f;
         float y = -3;
 
         if (playerUnit.hand.Count == 0)
@@ -355,7 +355,7 @@ public class TurnSystem : MonoBehaviour
 
     IEnumerator EnemyHand()
     {
-        float x = -3;
+        float x = -3.6f;
         float y = 3;
         if (enemyUnit.hand != null)
             enemyUnit.hand = enemyUnit.TakeHand(deck, enemyUnit.hand, 5);
