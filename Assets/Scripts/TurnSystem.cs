@@ -5,14 +5,15 @@ using UnityEngine.UI;
 
 
 public enum GameState {START,PLAYERTURN,ENEMYTURN,COMPARECARDS,PLAYERBET,ENEMYBET,WON,LOST }
-public enum TurnState {SHUFFLE,BET,END}
+
 public class TurnSystem : MonoBehaviour
 {
+    bool onPause;
 
     public List<Card> deck;
     public Text text;
     public GameState state;
-    public TurnState turnState;
+ 
 
     public GameObject player;
     public GameObject enemy;
@@ -20,6 +21,7 @@ public class TurnSystem : MonoBehaviour
     public GameObject enemyCardprefab;
     public GameObject playerFireworks;
     public GameObject enemyFireworks;
+    public GameObject pause;
 
     public Transform playerDeckTransform;
     public Transform enemyDeckTransform;
@@ -39,6 +41,12 @@ public class TurnSystem : MonoBehaviour
 
     public InputField[] playerBetFields;
     public InputField[] enemyBetFields;
+
+    [SerializeField] AudioClip money;
+    [SerializeField] AudioClip shuffleClip;
+    [SerializeField] AudioClip win;
+
+    [SerializeField] AudioSource source;
     
   
 
@@ -46,6 +54,8 @@ public class TurnSystem : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        pause.SetActive(false);
+
         for (int i = 0; i < 50; i++)
         {
             deck.Add(new Card(i + 1));
@@ -56,10 +66,11 @@ public class TurnSystem : MonoBehaviour
 
         state = GameState.START;
         StartCoroutine (SetUpGame());
+        
     }
 
    
-
+   
     IEnumerator SetUpGame()
     {
 
@@ -137,6 +148,7 @@ public class TurnSystem : MonoBehaviour
         playerUnit.shuffle.SetActive(false);
         playerUnit.hasShuffle = true;
 
+        source.PlayOneShot(shuffleClip);
         yield return new WaitForSeconds(2f);
         text.text = "Player 1 Has Shuffled";
         yield return new WaitForSeconds(2f);
@@ -235,12 +247,19 @@ public class TurnSystem : MonoBehaviour
     {
         if (state != GameState.PLAYERBET)
             return;
-
-        StartCoroutine(PlayerBet());
+        
+        if(playerUnit.money <= 0)
+            StartCoroutine(PlayerBet());
+        else
+        {
+            text.text = "Tienes que apostar todo tu dinero";
+            return;
+        }
     }
 
     IEnumerator PlayerBet()
     {
+        source.PlayOneShot(money);
         for (int i = 0; i < playerBetFields.Length; i++)
         {
             playerBetFields[i].interactable = false;
@@ -334,6 +353,8 @@ public class TurnSystem : MonoBehaviour
         enemyUnit.shuffle.SetActive(false);
         enemyUnit.hasShuffle = true;
 
+        source.PlayOneShot(shuffleClip);
+
         yield return new WaitForSeconds(2f);
 
         text.text = "Player 2 Has Shuffled";
@@ -419,6 +440,7 @@ public class TurnSystem : MonoBehaviour
     }
     IEnumerator EnemyBet()
     {
+        source.PlayOneShot(money);
         for (int i = 0; i < enemyBetFields.Length; i++)
         {
             enemyBetFields[i].interactable = false;
@@ -474,7 +496,13 @@ public class TurnSystem : MonoBehaviour
     {
         if (state != GameState.ENEMYBET)
             return;
-        StartCoroutine(EnemyBet());
+
+        if(enemyUnit.money <= 0)
+            StartCoroutine(EnemyBet());
+        else
+        {
+            text.text = "Tienes que apostar todo tu dinero";
+        }
     }
 
     #endregion
@@ -493,9 +521,11 @@ public class TurnSystem : MonoBehaviour
     {
         if(playerCard.value > enemyCard.value)
         {
+            
             text.text = "JUGADOR 1 GANA ESTA RONDA";
             playerUnit.money += playerCard.betValue + enemyCard.betValue;
             Debug.Log("JUGADOR 1 GANA ESTA RONDA");
+            source.PlayOneShot(win);
             playerFireworks.SetActive(true);
             yield return new WaitForSeconds(1.5f);
             playerFireworks.SetActive(false);
@@ -505,8 +535,10 @@ public class TurnSystem : MonoBehaviour
         }
         else
         {
+
             text.text = "JUGADOR 2 GANA ESTA RONDA";
             enemyUnit.money += playerCard.betValue + enemyCard.betValue;
+            source.PlayOneShot(win);
             enemyFireworks.SetActive(true);
             Debug.Log("JUGADOR 2 GANA ESTA RONDA");
 
@@ -516,15 +548,16 @@ public class TurnSystem : MonoBehaviour
             state = GameState.PLAYERTURN;
             PlayerTurn();
         }
+        
         playerCard = null;
         enemyCard = null;
 
-        WinCondition();
+        StartCoroutine( WinCondition());
 
     }
 
 
-    void WinCondition()
+    IEnumerator WinCondition()
     {
         GameObject[] temp;
         GameObject[] temp2;
@@ -534,23 +567,41 @@ public class TurnSystem : MonoBehaviour
         
         if (temp.Length != 0 && temp2.Length != 0)
         {
-            return;
+            yield return null;
         }
         else
         {
-            if(playerUnit.money > enemyUnit.money)
+            source.PlayOneShot(win);
+            if (playerUnit.money > enemyUnit.money)
             {
                 text.text = "PLAYER 1 WON";
                 playerFireworks.SetActive(true);
+                
             }
             else
             {
                 text.text = "PLAYER 2 WON";
                 enemyFireworks.SetActive(true);
             }
+           
+            yield return new WaitForSeconds(2);
+            pause.SetActive(true);
+
+
+
+
         }
     }
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape)||Input.GetKeyDown(KeyCode.P))
+        {
+            onPause = !onPause;
+
+            pause.SetActive(onPause);
+        }
+    }
     public Card TurnCard(List<Card> hand)
     {
         if (hand.Count == 0)

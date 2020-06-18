@@ -14,11 +14,14 @@ public class CardController : MonoBehaviour
 
     Text playerValue;
     Text enemyValue;
-
+    [SerializeField] AudioClip woosh;
+    AudioSource source;
     [SerializeField] TurnSystem system;
 
     private void Start()
     {
+        source = GetComponent<AudioSource>();
+        source.PlayOneShot(woosh);
         system = GameObject.Find("TurnSystem").GetComponent<TurnSystem>();
         playerValue = GameObject.Find("PlayerCardValue").GetComponent<Text>();
         enemyValue = GameObject.Find("EnemyCardValue").GetComponent<Text>();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class UIController : MonoBehaviour
 
     [SerializeField] Text playerBet;
     [SerializeField] Text enemyBet;
+
+    
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Unit>();
@@ -25,4 +28,16 @@ public class UIController : MonoBehaviour
         playerBet.text = player.money.ToString();
         enemyBet.text = enemy.money.ToString();
     }
+
+    public void OnReload()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    public void OnExit()
+    {
+        Application.Quit();
+    }
+
+  
 }
